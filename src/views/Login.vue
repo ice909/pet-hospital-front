@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class=" w-screen h-screen flex justify-center items-center login-page">
     <div id="login-wrapper">
       <form id="loginForm">
         <h1>欢迎登陆"格格"宠物医院医疗管理系统</h1>
@@ -96,16 +96,13 @@ const login = async () => {
 </script>
 
 <style scoped>
-.container {
+.login-page {
   background-image: url(http://codegen.caihongy.cn/20201223/72a1e0e0cd6a467ea781956764818af0.jpg) !important;
-  height: 100vh;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
   background-size: cover;
+  width: 100vw;
+  height: 100vh;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 #login-wrapper {
@@ -113,7 +110,7 @@ const login = async () => {
   flex-direction: column;
   position: inherit;
   height: 460px;
-  width: 400px;
+  width: 500px;
   margin: 0;
   padding: 0px;
   border-radius: 0;
