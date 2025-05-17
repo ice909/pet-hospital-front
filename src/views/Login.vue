@@ -86,11 +86,14 @@ const login = async () => {
   window.sessionStorage.setItem('username', username.value)
   window.sessionStorage.setItem('token', res.token)
   window.sessionStorage.setItem('role', res.role)
+  window.sessionStorage.setItem('userId', res.id)
   userStore.isLogin = true
   userStore.userInfo = {
     username: username.value,
     role: res.role,
+    id: res.id,
   }
+  userStore.accountTableName = role.value
   router.push('/')
 }
 </script>
