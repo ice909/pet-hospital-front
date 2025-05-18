@@ -83,6 +83,7 @@ const login = async () => {
   }
 
   window.sessionStorage.setItem('accountTableName', role.value)
+  window.sessionStorage.setItem('tableName', role.value)
   window.sessionStorage.setItem('username', username.value)
   window.sessionStorage.setItem('token', res.token)
   window.sessionStorage.setItem('role', res.role)

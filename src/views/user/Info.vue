@@ -52,8 +52,6 @@ const rules = {
 }
 
 const accountTableName = window.sessionStorage.getItem('accountTableName') || 'users'
-const currentUsername = window.sessionStorage.getItem('username') || ''
-
 // 获取当前用户信息
 async function fetchUser() {
   try {

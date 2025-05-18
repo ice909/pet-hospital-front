@@ -187,7 +187,6 @@ async function fetchData() {
     params.yishengxingming = search.name
   }
 
-  window.sessionStorage.setItem('tableName', 'yisheng')
 
   try {
     const res = await GetAdviceList({
