@@ -14,8 +14,9 @@ export const GetAdviceList = ({ page, limit, sort, order,yonghuming, yishenggong
       yishengxingming,
     },
     headers: {
-      'X-Table-Name': window.sessionStorage.getItem('tableName')
-    }
+      'X-Table-Name': window.sessionStorage.getItem('tableName'),
+      'X-Username': window.sessionStorage.getItem('username'),
+    },
   })
 }
 

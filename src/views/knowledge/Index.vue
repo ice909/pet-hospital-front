@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 bg-white shadow-lg rounded-lg">
+  <div v-if="userStore.userInfo.role != '用户'" class="p-6 bg-white shadow-lg rounded-lg">
     <h3 class="text-2xl font-semibold mb-4">医学知识管理</h3>
 
     <!-- 搜索与操作 -->
@@ -98,12 +98,34 @@
       </template>
     </el-dialog>
   </div>
+  <div v-else>
+    <h3 class="text-2xl font-semibold mb-4">医学知识</h3>
+    <el-table
+      v-loading="loading"
+      :data="knowledgeList"
+      border
+      class="mb-4 pt-8"
+    >
+      <el-table-column prop="wenzhangbiaoti" label="文章标题" width="120" sortable />
+      <el-table-column label="图片" width="100">
+        <template #default="{ row }">
+          <img :src="row.tupian" :width="100" :height="100" />
+        </template>
+      </el-table-column>
+      <el-table-column prop="wenzhangneirong" label="文章内容" fit />
+      <el-table-column prop="faburiqi" label="发布日期" width="120" sortable />
+    </el-table>
+  </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { GetKnowledgeList, AddKnowledge, UpdateKnowledge, DeleteKnowledge } from '@/api/knowledge'
+import { useUserStore } from '@/stores/user'
+
+
+const userStore = useUserStore()
 
 const search = reactive({
   title: '',

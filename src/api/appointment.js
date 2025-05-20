@@ -13,8 +13,9 @@ export const GetAppointmentList = ({ page, limit, sort, order, yishenggonghao, y
       yishengxingming,
     },
     headers: {
-      'X-Table-Name': window.sessionStorage.getItem('tableName')
-    }
+      'X-Table-Name': window.sessionStorage.getItem('tableName'),
+      'X-Username': window.sessionStorage.getItem('username'),
+    },
   })
 }
 

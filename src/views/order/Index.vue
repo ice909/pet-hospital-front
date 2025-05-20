@@ -9,11 +9,13 @@
       </el-col>
       <el-col :span="10">
         <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button type="success" @click="handleAdd">添加</el-button>
+        <el-button v-if="userStore.userInfo.role != '用户'" type="success" @click="handleAdd">添加</el-button>
         <el-button type="danger" :disabled="!multipleSelection.length" @click="handleBatchDelete">
           批量删除
         </el-button>
+        <el-button type="success" @click="handleStatistics">统计</el-button>
       </el-col>
+
     </el-row>
 
     <!-- 数据表格 -->
@@ -36,15 +38,21 @@
       <el-table-column prop="yonghuxingming" label="用户姓名" sortable />
       <el-table-column prop="ispay" label="是否支付" sortable >
         <template #default="{ row }">
+          <template v-if="userStore.userInfo.role != '用户'">
+            <span v-if="!row.ispay || row.ispay != '已支付'">未支付</span>
+            <span v-else>已支付</span>
+          </template>
+          <template v-else>
           <el-button v-if="!row.ispay || row.ispay != '已支付'" type="danger" @click="openPayDialog(row)">支付</el-button>
           <template v-else>已支付</template>
         </template>
+        </template>
       </el-table-column>
-      <el-table-column label="操作" width="300">
+      <el-table-column label="操作" width="250">
         <template #default="{ row }">
           <el-button type="info" @click="handleView(row)"> 查看 </el-button>
-          <el-button type="warning" @click="handleEdit(row)"> 修改 </el-button>
-          <el-button type="danger" @click="handleDelete(row)"> 删除 </el-button>
+          <el-button v-if="userStore.userInfo.role != '用户'" type="warning" @click="handleEdit(row)"> 修改 </el-button>
+          <el-button v-if="userStore.userInfo.role != '用户'" type="danger" @click="handleDelete(row)"> 删除 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -211,6 +219,11 @@ import { GetMedicineList } from '@/api/medicine'
 import { Pay } from "@/api/pay"
 import { GetUserList } from '@/api/user'
 import dayjs from 'dayjs'
+import { useUserStore } from '@/stores/user'
+import router from '@/router'
+
+
+const userStore = useUserStore()
 
 // 搜索条件
 const search = reactive({
@@ -241,6 +254,11 @@ const form = reactive({
   yonghuxingming: '',
   ispay: '',
 })
+const statisticsVisible = ref(false)
+
+const handleStatistics = () => {
+  router.push({ path: '/statistics'})
+}
 
 const rules = {
   yonghuming: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],

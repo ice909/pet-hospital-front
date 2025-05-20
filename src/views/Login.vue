@@ -1,8 +1,8 @@
 <template>
-  <div class=" w-screen h-screen flex justify-center items-center login-page">
+  <div class="w-screen h-screen flex justify-center items-center login-page">
     <div id="login-wrapper">
       <form id="loginForm">
-        <h1>欢迎登陆"格格"宠物医院医疗管理系统</h1>
+        <h1>宠物医院医疗管理系统</h1>
 
         <div class="form-group">
           <label class="label">用户名</label>
@@ -76,7 +76,7 @@ const login = async () => {
   // 获取role对应的 roleName
   const selectedRole = menus.value.find((menu) => menu.tableName === role.value)
 
-  const res = await Login(role.value,selectedRole.roleName,  username.value, password.value)
+  const res = await Login(role.value, selectedRole.roleName, username.value, password.value)
   if (res.code !== 0) {
     ElMessage.error(res.msg)
     return
@@ -89,11 +89,22 @@ const login = async () => {
   window.sessionStorage.setItem('role', res.role)
   window.sessionStorage.setItem('userId', res.id)
   userStore.isLogin = true
-  userStore.userInfo = {
-    username: username.value,
-    role: res.role,
-    id: res.id,
+  if (res.yonghuming) {
+    window.sessionStorage.setItem('yonghuming', res.yonghuming)
+    userStore.userInfo = {
+      username: username.value,
+      role: res.role,
+      id: res.id,
+      yonghuming: res.yonghuming,
+    }
+  } else {
+    userStore.userInfo = {
+      username: username.value,
+      role: res.role,
+      id: res.id,
+    }
   }
+
   userStore.accountTableName = role.value
   router.push('/')
 }

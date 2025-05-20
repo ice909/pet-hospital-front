@@ -4,8 +4,8 @@
 
     <!-- 搜索与操作按钮 -->
     <el-row :gutter="10">
-      <el-col :span="4">
-        <el-input v-model="search.username" placeholder="用户名" />
+      <el-col v-if="userStore.userInfo.role != '用户'" :span="4">
+        <el-input  v-model="search.username" placeholder="用户名" />
       </el-col>
       <el-col :span="4">
         <el-input v-model="search.jobNumber" placeholder="医生工号" />
@@ -15,7 +15,7 @@
       </el-col>
       <el-col :span="10">
         <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button type="success" @click="handleAdd">添加</el-button>
+        <el-button v-if="userStore.userInfo.role != '用户'" type="success" @click="handleAdd">添加</el-button>
         <el-button type="danger" :disabled="!multipleSelection.length" @click="handleBatchDelete">
           批量删除
         </el-button>
@@ -43,8 +43,8 @@
       <el-table-column label="操作" width="300">
         <template #default="{ row }">
           <el-button type="info" @click="handleView(row)"> 查看 </el-button>
-          <el-button type="warning" @click="handleEdit(row)"> 修改 </el-button>
-          <el-button type="danger" @click="handleDelete(row)"> 删除 </el-button>
+          <el-button v-if="userStore.userInfo.role != '用户'" type="warning" @click="handleEdit(row)"> 修改 </el-button>
+          <el-button v-if="userStore.userInfo.role != '用户'" type="danger" @click="handleDelete(row)"> 删除 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -64,15 +64,16 @@
         :disabled="opType === 'view'"
         :hide-required-asterisk="opType === 'view'"
       >
-        <!-- 
-      <el-table-column prop="chongwuzhuangkuang" label="宠物状况" sortable />
-      <el-table-column prop="yizhu" label="医嘱" />
-      <el-table-column prop="riqi" label="日期" sortable />
-      <el-table-column prop="yishenggonghao" label="医生工号" sortable />
-      <el-table-column prop="yishengxingming" label="医生姓名" sortable />
-      <el-table-column prop="keshi" label="科室" sortable /> -->
         <el-form-item prop="yonghuming" label="用户名">
-          <el-input v-model="form.yonghuming" placeholder="请输入用户名" />
+          <!-- <el-input v-model="form.yonghuming" placeholder="请输入用户名" /> -->
+           <el-select v-model="form.yonghuming" placeholder="请选择用户名" @change="handleSelect">
+            <el-option
+              v-for="item in appointmentList"
+              :key="item.id"
+              :label="item.yonghuming"
+              :value="item.yonghuming"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item prop="yonghuxingming" label="用户姓名">
           <el-input v-model="form.yonghuxingming" placeholder="请输入用户姓名" />
@@ -118,6 +119,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { GetAdviceList, AddAdvice, DeleteAdvice, UpdateAdvice } from '@/api/advice'
 import dayjs from 'dayjs'
+import { useUserStore } from '@/stores/user'
+import { GetAppointmentList } from '@/api/appointment'
+import { GetDoctorList} from '@/api/doctorInfo'
+
+const userStore = useUserStore()
 
 // 搜索条件
 const search = reactive({
@@ -149,6 +155,8 @@ const form = reactive({
   yishengxingming: '',
   keshi: '',
 })
+
+const appointmentList = ref([])
 
 const rules = {
   yonghuming: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
@@ -230,10 +238,49 @@ function handleSearch() {
 function onSelectionChange(val) {
   multipleSelection.value = val
 }
-function handleAdd() {
+async function handleAdd() {
   form.id = ''
   // 跳转到新增页面
   dialogVisible.value = true
+  const res = await GetAppointmentList({
+    page: 1,
+    limit: 100,
+    sort: '',
+    order: '',
+  })
+  appointmentList.value = res.data.list.map((item) => ({
+    id: item.id,
+    yonghuming: item.yonghuming,
+    yonghuxingming: item.yonghuxingming,
+    chongwuming: item.chongwuming,
+    chongwuzhuangkuang: item.chongwuzhuangkuang,
+    yishenggonghao: item.yishenggonghao,
+    yishengxingming: item.yishengxingming,
+    
+  }))
+
+}
+
+const handleSelect = (val) => {
+  const selectedItem = appointmentList.value.find((item) => item.yonghuming === val)
+  if (selectedItem) {
+    form.yonghuxingming = selectedItem.yonghuxingming
+    form.chongwuming = selectedItem.chongwuming
+    form.chongwuzhuangkuang = selectedItem.chongwuzhuangkuang
+    form.yishenggonghao = selectedItem.yishenggonghao
+    form.yishengxingming = selectedItem.yishengxingming
+  }
+
+  GetDoctorList({
+    page: 1,
+    limit: 100,
+    sort: '',
+    order: '',
+  }).then((res) => {
+    if (res.code === 0) {
+      form.keshi = res.data.list.find((item) => item.yishenggonghao === form.yishenggonghao).keshimingcheng
+    }
+  })
 }
 function handleView(row) {
   opType.value = 'view'

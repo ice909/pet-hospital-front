@@ -56,7 +56,7 @@ const allMenus = [
     index: '4',
     label: '医学知识管理',
     path: '/knowledge',
-    roles: ['管理员', '医生'],
+    roles: ['管理员', '医生', '用户'],
   },
   {
     type: 'item',
@@ -103,30 +103,30 @@ const allMenus = [
   {
     type: 'item',
     index: '11',
-    label: '留言板管理',
+    label: '留言板',
     path: '/message',
-    roles: ['管理员'],
+    roles: ['管理员', '用户'],
   },
-  {
-    type: 'submenu',
-    index: '12',
-    title: '系统信息',
-    roles: ['管理员'],
-    children: [
-      {
-        index: '12-1',
-        label: '新闻资讯',
-        path: '/news',
-        roles: ['管理员'],
-      },
-      {
-        index: '12-2',
-        label: '轮播图',
-        path: '/banner',
-        roles: ['管理员'],
-      },
-    ],
-  },
+  // {
+  //   type: 'submenu',
+  //   index: '12',
+  //   title: '系统信息',
+  //   roles: ['管理员'],
+  //   children: [
+  //     {
+  //       index: '12-1',
+  //       label: '新闻资讯',
+  //       path: '/news',
+  //       roles: ['管理员'],
+  //     },
+  //     {
+  //       index: '12-2',
+  //       label: '轮播图',
+  //       path: '/banner',
+  //       roles: ['管理员'],
+  //     },
+  //   ],
+  // },
 ]
 
 const filteredMenus = computed(() => {

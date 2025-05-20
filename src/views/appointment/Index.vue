@@ -15,7 +15,7 @@
       </el-col>
       <el-col :span="10">
         <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button type="success" @click="handleAdd">添加</el-button>
+        <el-button v-if="userStore.userInfo.role == '用户'" type="success" @click="handleAdd">挂号</el-button>
         <el-button type="danger" :disabled="!multipleSelection.length" @click="handleBatchDelete">
           批量删除
         </el-button>
@@ -25,7 +25,7 @@
     <!-- 数据表格 -->
     <el-table
       v-loading="loading"
-      :data="doctorList"
+      :data="appointmentList"
       border
       @selection-change="onSelectionChange"
       class="my-4 pt-8"
@@ -40,19 +40,19 @@
       <el-table-column prop="yishenggonghao" label="医生工号" sortable />
       <el-table-column prop="yishengxingming" label="医生姓名" sortable />
       <el-table-column prop="keshimingcheng" label="科室名称" sortable />
-      <el-table-column label="是否审核" sortable>
+      <el-table-column v-if="userStore.userInfo.role != '用户'" label="是否审核" sortable>
         <template #default="{ row }">
           {{ !row.sfsh ? '否' : row.sfsh }}
         </template>
       </el-table-column>
-      <el-table-column prop="shhf" label="审核回复" sortable />
-      <el-table-column label="操作" width="250">
+      <el-table-column  prop="shhf" label="'审核回复' " sortable />
+      <el-table-column  label="操作" width="250">
         <template #default="{ row }">
-          <el-button type="success" @click="handleReviewView(row)"> 审核 </el-button>
-          <el-button type="success" @click="handleView(row)"> 医嘱 </el-button>
-          <el-button type="info" @click="handleView(row)"> 查看 </el-button>
-          <el-button type="warning" @click="handleEdit(row)"> 修改 </el-button>
-          <el-button type="danger" @click="handleDelete(row)"> 删除 </el-button>
+          <el-button v-if="userStore.userInfo.role != '用户'" type="success" @click="handleReviewView(row)"> 审核 </el-button>
+          <el-button v-if="false" type="success" @click="handleEdit(row)"> 医嘱 </el-button>
+          <el-button  type="info" @click="handleView(row)"> 查看 </el-button>
+          <el-button  v-if="userStore.userInfo.role != '用户'" type="warning" @click="handleEdit(row)"> 修改 </el-button>
+          <el-button v-if="userStore.userInfo.role != '用户'" type="danger" @click="handleDelete(row)"> 删除 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -74,10 +74,10 @@
         :hide-required-asterisk="opType === 'view'"
       >
         <el-form-item prop="yonghuming" label="用户名">
-          <el-input v-model="form.yonghuming" placeholder="请输入用户名" />
+          <el-input v-model="form.yonghuming" placeholder="请输入用户名" readonly />
         </el-form-item>
         <el-form-item prop="yonghuxingming" label="用户姓名">
-          <el-input v-model="form.yonghuxingming" placeholder="请输入用户姓名" />
+          <el-input v-model="form.yonghuxingming" placeholder="请输入用户姓名" readonly />
         </el-form-item>
         <el-form-item prop="shoujihaoma" label="手机号码 ">
           <el-input v-model="form.shoujihaoma" placeholder="请输入手机号码" />
@@ -98,10 +98,18 @@
         </el-form-item>
 
         <el-form-item prop="yishenggonghao" label="医生工号">
-          <el-input v-model="form.yishenggonghao" placeholder="请输入医生工号" />
+          <!-- <el-input v-model="form.yishenggonghao" placeholder="请输入医生工号" /> -->
+          <el-select v-model="form.yishenggonghao" placeholder="请选择医生工号" size="large" style="width: 240px" @change="onDoctorChange">
+            <el-option
+              v-for="item in doctorList"
+              :key="item.id"
+              :label="item.yishenggonghao"
+              :value="item.yishenggonghao"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item prop="yishengxingming" label="医生姓名">
-          <el-input v-model="form.yishengxingming" placeholder="请输入医生姓名" />
+          <el-input v-model="form.yishengxingming" placeholder="请输入医生姓名" readonly />
         </el-form-item>
         <el-form-item prop="keshimingcheng" label="科室">
           <el-input v-model="form.keshimingcheng" placeholder="请输入医生科室" />
@@ -172,7 +180,12 @@ import {
 } from '@/api/appointment'
 import { computed } from 'vue'
 import dayjs from 'dayjs'
+import { useUserStore } from '@/stores/user'
+import {
+  GetDoctorList
+} from '@/api/doctorInfo'
 
+const userStore = useUserStore()
 // 搜索条件
 const search = reactive({
   jobNumber: '',
@@ -181,7 +194,7 @@ const search = reactive({
 })
 
 // 列表数据 & 分页
-const doctorList = ref([])
+const appointmentList = ref([])
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
@@ -224,6 +237,7 @@ const form = reactive({
   yonghuxingming: '',
   yuyueriqi: '',
 })
+const docterList = ref([])
 
 const rules = {
   yonghuming: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
@@ -271,7 +285,7 @@ async function fetchData() {
     })
     console.log(res)
     if (res.code === 0) {
-      doctorList.value = res.data.list.map((item) => ({
+      appointmentList.value = res.data.list.map((item) => ({
         id: item.id,
         chongwuming: item.chongwuming,
         chongwuzhuangkuang: item.chongwuzhuangkuang,
@@ -306,10 +320,34 @@ function handleSearch() {
 function onSelectionChange(val) {
   multipleSelection.value = val
 }
-function handleAdd() {
+async function handleAdd() {
   form.id = ''
   // 跳转到新增页面
   dialogVisible.value = true
+  if (userStore.userInfo.role == '用户') {
+    form.yonghuming = userStore.userInfo.username
+    form.yonghuxingming = userStore.userInfo.yonghuming      
+  }
+  const res = await GetDoctorList({
+    page: 1,
+    limit: 100,
+    sort: '',
+    order: '',
+  })
+  doctorList.value = res.data.list.map((item) => ({
+    id: item.id,
+    yishenggonghao: item.yishenggonghao,
+    yishengxingming: item.yishengxingming,
+    keshimingcheng: item.keshimingcheng,
+  }))
+}
+
+const onDoctorChange = (val) => {
+  const selectedDoctor = doctorList.value.find((doctor) => doctor.yishenggonghao === val)
+  if (selectedDoctor) {
+    form.yishengxingming = selectedDoctor.yishengxingming
+    form.keshimingcheng = selectedDoctor.keshimingcheng
+  }
 }
 
 const handleReviewView = async (row) => {
@@ -395,6 +433,7 @@ function onClose() {
   dialogVisible.value = false
   formRef.value && formRef.value.resetFields()
   form.id = ''
+  form.chongwuming = ''
   form.chongwuzhuangkuang = ''
   form.keshimingcheng = ''
   form.sfsh = ''

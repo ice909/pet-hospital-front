@@ -15,6 +15,7 @@ import Appointment from '@/views/appointment/Index.vue'
 import MedicalAdvice from '@/views/medical/Advice.vue'
 import Medicine from '@/views/medicine/Index.vue'
 import Order from '@/views/order/Index.vue'
+import Statistics from '@/views/order/statistics.vue'
 import Message from '@/views/message/Index.vue'
 import News from '@/views/system/News.vue'
 import Banner from '@/views/system/Banner.vue'
@@ -62,7 +63,7 @@ const router = createRouter({
           path: '/knowledge',
           name: 'Knowledge',
           component: Knowledge,
-          meta: { title: '医学知识管理', roles: ['管理员', '医生'] },
+          meta: { title: '医学知识管理', roles: ['管理员', '医生', '用户'] },
         },
         {
           path: '/department',
@@ -98,29 +99,34 @@ const router = createRouter({
           path: '/order',
           name: 'Order',
           component: Order,
-          meta: { title: '订单信息管理', roles: ['管理员'] },
+          meta: { title: '订单信息管理', roles: ['管理员', '用户', '医生'] },
         },
         {
           path: '/message',
           name: 'Message',
           component: Message,
-          meta: { title: '留言板管理', roles: ['管理员'] },
+          meta: { title: '留言板', roles: ['管理员', '用户'] },
         },
         {
-          path: '/news',
-          name: 'News',
-          component: News,
-          meta: { title: '新闻资讯', roles: ['管理员'] },
+          path: '/statistics',
+          name: 'Statistics',
+          component: Statistics,
         },
-        {
-          path: '/banner',
-          name: 'Banner',
-          component: Banner,
-          meta: { title: '轮播图', roles: ['管理员'] },
-        },
+        // {
+        //   path: '/news',
+        //   name: 'News',
+        //   component: News,
+        //   meta: { title: '新闻资讯', roles: ['管理员'] },
+        // },
+        // {
+        //   path: '/banner',
+        //   name: 'Banner',
+        //   component: Banner,
+        //   meta: { title: '轮播图', roles: ['管理员'] },
+        // },
         {
           path: '/:pathMatch(.*)*',
-          redirect: '/user/info',
+          redirect: '/',
         },
       ],
     },
